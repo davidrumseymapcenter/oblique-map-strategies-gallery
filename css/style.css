@@ -1,0 +1,453 @@
+/* ========================================
+   Oblique Map Strategies - Main Stylesheet
+   ======================================== */
+
+/* ========================================
+   CSS Variables & Reset
+   ======================================== */
+:root {
+    --primary-color: #2c5f7c;
+    --primary-hover: #234a61;
+    --secondary-color: #6c757d;
+    --secondary-hover: #5a6268;
+    --background: #f8f9fa;
+    --card-background: #ffffff;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --border-color: #dee2e6;
+    --shadow: 0 2px 8px rgba(0,0,0,0.1);
+    --shadow-hover: 0 4px 12px rgba(0,0,0,0.15);
+    --transition: all 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Georgia, serif;
+    background-color: var(--background);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+/* ========================================
+   Layout
+   ======================================== */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* ========================================
+   Header
+   ======================================== */
+header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.logo-img {
+    width: 48px;
+    height: 48px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: normal;
+    color: var(--primary-color);
+}
+
+.tagline {
+    font-style: italic;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* ========================================
+   Main Sections
+   ======================================== */
+section {
+    background: var(--card-background);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
+
+section h2 {
+    font-size: 1.5rem;
+    font-weight: normal;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+}
+
+section h3 {
+    font-size: 1.2rem;
+    font-weight: normal;
+    margin-bottom: 1rem;
+}
+
+/* ========================================
+   Viewer Section (combined with prompt)
+   ======================================== */
+.viewer-section {
+    position: relative;
+    padding: 2rem;
+    background: var(--card-background);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+}
+
+/* Prompt display - above viewer, centered */
+.prompt-display {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.prompt-text {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    font-style: italic;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Viewer container */
+.viewer {
+    width: 100%;
+    height: 500px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: #f0f0f0;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+/* Shuffle controls - directly under viewer */
+.shuffle-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 0;
+}
+
+/* Metadata sidebar overlay - inside viewer on left */
+.metadata-sidebar {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    width: 300px;
+    max-height: calc(100% - 2rem);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    box-shadow: var(--shadow-hover);
+    padding: 1.5rem;
+    z-index: 100;
+    overflow-y: auto;
+    transition: var(--transition);
+}
+
+.metadata-sidebar.hidden {
+    display: none;
+}
+
+.metadata-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 0.25rem 0.5rem;
+    transition: var(--transition);
+}
+
+.metadata-close:hover {
+    color: var(--text-primary);
+}
+
+.metadata-content h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    padding-right: 2rem;
+}
+
+.metadata-content h3::before {
+    content: 'Title: ';
+    font-weight: bold;
+    font-size: 0.9rem;
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+}
+
+.metadata-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.metadata-item {
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.metadata-item strong {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+}
+
+.metadata-item span,
+.metadata-item a {
+    color: var(--text-secondary);
+}
+
+#map-source {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+#map-source:hover {
+    text-decoration: underline;
+}
+
+/* Metadata toggle button - smaller, all caps */
+.metadata-toggle-btn {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    padding: 0.4rem 0.6rem;
+    background: #8B7355;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-family: Georgia, serif;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    z-index: 50;
+}
+
+.metadata-toggle-btn:hover {
+    background: #6d5a43;
+    box-shadow: var(--shadow-hover);
+}
+
+/* Shuffle animation overlay */
+.shuffle-animation {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    z-index: 10;
+}
+
+.shuffle-animation.hidden {
+    display: none;
+}
+
+.shuffle-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid var(--border-color);
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.shuffle-text {
+    margin-top: 1rem;
+    font-size: 1.2rem;
+    font-style: italic;
+    color: var(--text-secondary);
+}
+
+/* ========================================
+   Buttons
+   ======================================== */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-family: Georgia, serif;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+    box-shadow: var(--shadow-hover);
+}
+
+.btn-secondary {
+    background: var(--secondary-color);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: var(--secondary-hover);
+    box-shadow: var(--shadow-hover);
+}
+
+.btn-icon {
+    font-size: 1.2rem;
+}
+
+/* ========================================
+   Analysis Section
+   ======================================== */
+.analysis-textarea {
+    width: 100%;
+    padding: 1rem;
+    font-family: Georgia, serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    resize: vertical;
+    min-height: 200px;
+}
+
+.analysis-textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* ========================================
+   Export Section
+   ======================================== */
+.export-options {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--background);
+    border-radius: 6px;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* ========================================
+   Footer
+   ======================================== */
+footer {
+    text-align: center;
+    padding: 2rem 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    border-top: 2px solid var(--border-color);
+    margin-top: 3rem;
+}
+
+footer p {
+    margin: 0.5rem 0;
+}
+
+footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .viewer {
+        height: 400px;
+    }
+    
+    .shuffle-controls {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .export-buttons {
+        flex-direction: column;
+    }
+}
