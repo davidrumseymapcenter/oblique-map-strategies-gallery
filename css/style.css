@@ -94,10 +94,20 @@ h1 {
     margin-right: auto;
 }
 
+#gallery-name-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+#gallery-name-link:hover {
+    text-decoration: underline;
+    color: var(--primary-hover);
+}
+
 #gallery-name {
     font-size: 1rem;
     font-weight: bold;
-    color: var(--primary-color);
 }
 
 .gallery-count {
