@@ -1,6 +1,6 @@
 /* ========================================
-   Oblique Map Strategies - Main Application Controller
-   app.js - Coordinates all modules and manages application state
+   Oblique Map Strategies (Gallery Version)
+   app.js - Main Application Controller
    ======================================== */
 
 // ========================================
@@ -9,7 +9,8 @@
 const AppState = {
     currentMap: null,
     currentPrompt: null,
-    isLoading: false
+    isLoading: false,
+    galleryInfo: null
 };
 
 // ========================================
@@ -18,6 +19,12 @@ const AppState = {
 const DOM = {
     // Viewer
     imageViewer: document.getElementById('image-viewer'),
+    
+    // Gallery info
+    galleryName: document.getElementById('gallery-name'),
+    currentIndex: document.getElementById('current-index'),
+    totalMaps: document.getElementById('total-maps'),
+    footerGalleryName: document.getElementById('footer-gallery-name'),
     
     // Metadata
     metadataSidebar: document.getElementById('metadata-sidebar'),
@@ -57,13 +64,50 @@ const DOM = {
 // Initialization
 // ========================================
 function init() {
-    console.log('Initializing Oblique Map Strategies...');
+    console.log('Initializing Oblique Map Strategies (Gallery Version)...');
     
     // Set up event listeners
     setupEventListeners();
     
-    // Load initial content
-    shuffleBoth();
+    // Load gallery info first, then shuffle
+    loadGalleryInfo().then(() => {
+        shuffleBoth();
+    }).catch(error => {
+        console.error('Error loading gallery:', error);
+        alert('Failed to load gallery. Please refresh the page.');
+    });
+}
+
+// ========================================
+// Gallery Info Management
+// ========================================
+async function loadGalleryInfo() {
+    try {
+        // Load the gallery (defined in gallery.js)
+        await loadGallery();
+        
+        // Get gallery info
+        const info = getGalleryInfo();
+        AppState.galleryInfo = info;
+        
+        // Update display
+        updateGalleryDisplay();
+        
+    } catch (error) {
+        console.error('Error loading gallery info:', error);
+        throw error;
+    }
+}
+
+function updateGalleryDisplay() {
+    if (AppState.galleryInfo) {
+        const label = AppState.galleryInfo.label || 'Unknown Gallery';
+        
+        DOM.galleryName.textContent = label;
+        DOM.footerGalleryName.textContent = label;
+        DOM.totalMaps.textContent = AppState.galleryInfo.total;
+        DOM.currentIndex.textContent = AppState.galleryInfo.current + 1;
+    }
 }
 
 // ========================================
@@ -119,7 +163,7 @@ async function loadNewMap() {
     showShuffleAnimation();
     
     try {
-        // Fetch random map from Allmaps (defined in allmaps.js)
+        // Fetch random map from gallery (defined in gallery.js)
         const mapData = await fetchRandomMap();
         
         if (!mapData) {
@@ -131,7 +175,10 @@ async function loadNewMap() {
         // Update metadata display
         updateMapMetadata(mapData);
         
-        // Initialize viewers (defined in viewers.js)
+        // Update gallery counter
+        updateGalleryDisplay();
+        
+        // Initialize viewer (defined in viewers.js)
         await initializeViewers(mapData);
         
         hideShuffleAnimation();
@@ -183,6 +230,7 @@ async function shuffleBoth() {
         
         AppState.currentMap = mapData;
         updateMapMetadata(mapData);
+        updateGalleryDisplay();
         await initializeViewers(mapData);
         
         hideShuffleAnimation();
@@ -266,7 +314,8 @@ function getExportOptions() {
         includePrompt: DOM.exportPrompt.checked,
         includeMetadata: DOM.exportMetadata.checked,
         includeAnalysis: DOM.exportAnalysis.checked,
-        analysisText: DOM.analysisText.value
+        analysisText: DOM.analysisText.value,
+        galleryName: AppState.galleryInfo?.label || 'Unknown Gallery'
     };
 }
 
