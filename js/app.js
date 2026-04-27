@@ -21,6 +21,7 @@ const DOM = {
     imageViewer: document.getElementById('image-viewer'),
     
     // Gallery info
+    galleryNameLink: document.getElementById('gallery-name-link'),
     galleryName: document.getElementById('gallery-name'),
     currentIndex: document.getElementById('current-index'),
     totalMaps: document.getElementById('total-maps'),
