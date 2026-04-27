@@ -1,5 +1,6 @@
 /* ========================================
-   Oblique Map Strategies - Main Stylesheet
+   Oblique Map Strategies (Gallery Version)
+   Main Stylesheet
    ======================================== */
 
 /* ========================================
@@ -75,6 +76,33 @@ h1 {
     font-style: italic;
     color: var(--text-secondary);
     font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+/* Gallery info display */
+.gallery-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: var(--background);
+    border-radius: 6px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#gallery-name {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.gallery-count {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
 }
 
 /* ========================================
@@ -422,6 +450,10 @@ footer a:hover {
     text-decoration: underline;
 }
 
+#footer-gallery-name {
+    font-style: italic;
+}
+
 /* ========================================
    Responsive Design
    ======================================== */
@@ -449,5 +481,10 @@ footer a:hover {
     
     .export-buttons {
         flex-direction: column;
+    }
+    
+    .metadata-sidebar {
+        width: calc(100% - 2rem);
+        max-width: 300px;
     }
 }
