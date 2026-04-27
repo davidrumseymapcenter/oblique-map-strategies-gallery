@@ -19,17 +19,39 @@ const GALLERY_CONFIG = {
     manifestCache: new Map()
 };
 
+/**
+ * Get gallery URL from URL parameter or use default
+ * @returns {string} Gallery URL to load
+ */
+function getGalleryUrlFromParams() {
+    const params = new URLSearchParams(window.location.search);
+    const galleryParam = params.get('gallery');
+    
+    if (galleryParam) {
+        console.log('Loading gallery from URL parameter:', galleryParam);
+        return galleryParam;
+    }
+    
+    console.log('No gallery parameter found, using default');
+    return GALLERY_CONFIG.defaultGalleryUrl;
+}
+
 // ========================================
 // Fetch Gallery from GitHub
 // ========================================
 
 /**
  * Load gallery JSON from URL
- * @param {string} url - URL to gallery JSON
+ * @param {string} url - URL to gallery JSON (optional, will check URL params)
  * @returns {Promise<Object>} Gallery collection object
  */
-async function loadGallery(url = GALLERY_CONFIG.defaultGalleryUrl) {
+async function loadGallery(url = null) {
     try {
+        // If no URL provided, check URL parameters first, then fall back to default
+        if (!url) {
+            url = getGalleryUrlFromParams();
+        }
+        
         console.log('Loading gallery from:', url);
         
         const response = await fetch(url);
