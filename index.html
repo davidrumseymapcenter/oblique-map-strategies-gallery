@@ -9,17 +9,9 @@
     <!-- OpenSeadragon for image viewing -->
     <script src="https://cdn.jsdelivr.net/npm/openseadragon@4.1.0/build/openseadragon/openseadragon.min.js"></script>
     
-     <!-- Leaflet for geographic viewer -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
     <!-- jsPDF for PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-   
-</script>
 </head>
-
 <body>
     <!-- Main Container -->
     <div class="container">
@@ -27,104 +19,110 @@
         <!-- Header -->
         <header>
             <div class="logo">
-                <img src="assets/logo.png" alt="Oblique Map Strategies" class="logo-img">
+                <img src="assets/logo-placeholder.svg" alt="Oblique Map Strategies" class="logo-img">
                 <h1>Oblique Map Strategies</h1>
             </div>
-            <p class="tagline">Random maps, unexpected prompts, creative analysis</p>
+            <p class="tagline">Random maps from curated galleries, unexpected prompts, creative analysis</p>
+            <div class="gallery-info">
+                <span id="gallery-name">Loading gallery...</span>
+                <span class="gallery-count">
+                    Map <span id="current-index">-</span> of <span id="total-maps">-</span>
+                </span>
+            </div>
         </header>
 
         <!-- Main Content Area -->
         <main>
             
- <!-- Prompt and Map Viewer Section Combined -->
-<section class="viewer-section">
-    <!-- Prompt display -->
-    <div class="prompt-display">
-        <p id="prompt-text" class="prompt-text">Click "Shuffle Both" to begin...</p>
-    </div>
-    
-    <!-- Image viewer (OpenSeadragon) -->
-    <div id="image-viewer" class="viewer"></div>
-    
-    <!-- Shuffle Controls - directly under viewer -->
-    <div class="shuffle-controls">
-        <button id="new-map-btn" class="btn btn-secondary">
-            <span class="btn-icon">🗺️</span> New Map
-        </button>
-        <button id="new-prompt-btn" class="btn btn-secondary">
-            <span class="btn-icon">💭</span> New Prompt
-        </button>
-        <button id="shuffle-both-btn" class="btn btn-primary">
-            <span class="btn-icon">🔀</span> Shuffle Both
-        </button>
-    </div>
-
-    <!-- Map metadata sidebar overlay -->
-    <div id="metadata-sidebar" class="metadata-sidebar hidden">
-        <button id="metadata-close-btn" class="metadata-close" aria-label="Close metadata">×</button>
-        <div class="metadata-content">
-            <h3 id="map-title">Loading map...</h3>
-            <div class="metadata-items">
-                <div class="metadata-item"><strong>Date:</strong> <span id="map-date">—</span></div>
-                <div class="metadata-item"><strong>Creator:</strong> <span id="map-creator">—</span></div>
-                <div class="metadata-item"><strong>Institution:</strong> <span id="map-institution">—</span></div>
-                <div class="metadata-item">
-                    <strong>Source:</strong> 
-                    <a id="map-source" href="#" target="_blank" rel="noopener noreferrer">View original</a>
+            <!-- Prompt and Map Viewer Section Combined -->
+            <section class="viewer-section">
+                <!-- Prompt display -->
+                <div class="prompt-display">
+                    <p id="prompt-text" class="prompt-text">Click "Shuffle Both" to begin...</p>
                 </div>
-            </div>
-        </div>
-    </div>
-    
-  <!-- Metadata toggle button -->
-<button id="metadata-toggle-btn" class="metadata-toggle-btn" aria-label="Toggle metadata">
-    Show Metadata
-</button>
+                
+                <!-- Image viewer (OpenSeadragon) -->
+                <div id="image-viewer" class="viewer"></div>
+                
+                <!-- Shuffle Controls - directly under viewer -->
+                <div class="shuffle-controls">
+                    <button id="new-map-btn" class="btn btn-secondary">
+                        <span class="btn-icon">🗺️</span> New Map
+                    </button>
+                    <button id="new-prompt-btn" class="btn btn-secondary">
+                        <span class="btn-icon">💭</span> New Prompt
+                    </button>
+                    <button id="shuffle-both-btn" class="btn btn-primary">
+                        <span class="btn-icon">🔀</span> Shuffle Both
+                    </button>
+                </div>
 
-    <!-- Shuffle Animation Overlay -->
-    <div id="shuffle-animation" class="shuffle-animation hidden">
-        <div class="shuffle-spinner"></div>
-        <p class="shuffle-text">Shuffling...</p>
-    </div>
-</section>
+                <!-- Map metadata sidebar overlay -->
+                <div id="metadata-sidebar" class="metadata-sidebar hidden">
+                    <button id="metadata-close-btn" class="metadata-close" aria-label="Close metadata">×</button>
+                    <div class="metadata-content">
+                        <h3 id="map-title">Loading map...</h3>
+                        <div class="metadata-items">
+                            <div class="metadata-item"><strong>Date:</strong> <span id="map-date">—</span></div>
+                            <div class="metadata-item"><strong>Creator:</strong> <span id="map-creator">—</span></div>
+                            <div class="metadata-item"><strong>Institution:</strong> <span id="map-institution">—</span></div>
+                            <div class="metadata-item">
+                                <strong>Source:</strong> 
+                                <a id="map-source" href="#" target="_blank" rel="noopener noreferrer">View original</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Metadata toggle button -->
+                <button id="metadata-toggle-btn" class="metadata-toggle-btn" aria-label="Toggle metadata">
+                    Show Metadata
+                </button>
 
-<!-- Analysis Section -->
-<section class="analysis-section">
-    <h2>Your Analysis</h2>
-    <textarea 
-        id="analysis-text" 
-        class="analysis-textarea" 
-        placeholder="Write your response to the prompt here..."
-        rows="10"
-    ></textarea>
-</section>
+                <!-- Shuffle Animation Overlay -->
+                <div id="shuffle-animation" class="shuffle-animation hidden">
+                    <div class="shuffle-spinner"></div>
+                    <p class="shuffle-text">Shuffling...</p>
+                </div>
+            </section>
+
+            <!-- Analysis Section -->
+            <section class="analysis-section">
+                <h2>Your Analysis</h2>
+                <textarea 
+                    id="analysis-text" 
+                    class="analysis-textarea" 
+                    placeholder="Write your response to the prompt here..."
+                    rows="10"
+                ></textarea>
+            </section>
 
             <!-- Export Section -->
             <section class="export-section">
                 <h2>Export Your Work</h2>
                 
-               <!-- Export Options -->
-            <div class="export-options">
-                 <h3>Include in export:</h3>
-                <div class="checkbox-group">
-                     <label>
-                      <input type="checkbox" id="export-image-view" checked>
-            Image view
-        </label>
-        <label>
-            <input type="checkbox" id="export-prompt" checked>
-            Prompt text
-        </label>
-        <label>
-            <input type="checkbox" id="export-metadata" checked>
-            Map metadata
-        </label>
-        <label>
-            <input type="checkbox" id="export-analysis" checked>
-            My written analysis
-        </label>
-    </div>
-</div>
+                <!-- Export Options -->
+                <div class="export-options">
+                    <h3>Include in export:</h3>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="export-image-view" checked>
+                            Image view
+                        </label>
+                        <label>
+                            <input type="checkbox" id="export-prompt" checked>
+                            Prompt text
+                        </label>
+                        <label>
+                            <input type="checkbox" id="export-metadata" checked>
+                            Map metadata
+                        </label>
+                        <label>
+                            <input type="checkbox" id="export-analysis" checked>
+                            My written analysis
+                        </label>
+                    </div>
+                </div>
 
                 <!-- Export Buttons -->
                 <div class="export-buttons">
@@ -144,15 +142,17 @@
 
         <!-- Footer -->
         <footer>
-            <p>Maps sourced from <a href="https://allmaps.org" target="_blank">Allmaps</a> aggregating georeferenced maps from institutions worldwide.</p>
-            <p class="github-link"><a href="https://github.com/davidrumseymapcenter/oblique-map-strategies" target="_blank">View on GitHub</a></p>
+            <p>Maps from curated IIIF galleries. Current gallery: <span id="footer-gallery-name">—</span></p>
+            <p class="github-link">
+                <a href="https://github.com/davidrumseymapcenter/oblique-map-strategies-gallery" target="_blank">View on GitHub</a>
+            </p>
         </footer>
 
     </div>
 
     <!-- JavaScript modules -->
     <script src="js/prompts.js"></script>
-    <script src="js/allmaps.js"></script>
+    <script src="js/gallery.js"></script>
     <script src="js/viewers.js"></script>
     <script src="js/animations.js"></script>
     <script src="js/export.js"></script>
