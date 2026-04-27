@@ -112,7 +112,7 @@ function updateGalleryDisplay() {
         // Set link to open gallery in viewer
         // Construct viewer URL with gallery parameter
         const galleryUrl = getGalleryUrlFromParams(); // from gallery.js
-        const viewerUrl = `https://davidrumseymapcenter.github.io/set-builder/viewer.html?gallery=${encodeURIComponent(galleryUrl)}`;
+        const viewerUrl = `https://davidrumseymapcenter.github.io/set-builder/viewer.html?file=${encodeURIComponent(galleryUrl)}`;
         DOM.galleryNameLink.href = viewerUrl;
     }
 }
