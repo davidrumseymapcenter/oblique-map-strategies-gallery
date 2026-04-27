@@ -277,18 +277,21 @@ function extractMetadata(manifest) {
             if (label && value) {
                 const labelLower = label.toLowerCase();
                 
-                // Date variations
-                if (labelLower.includes('date') || labelLower.includes('pub date')) {
-                    if (!metadata.date) { // Take first date found
+                // Date variations - Rumsey uses "Date", Stanford uses "Date" or "Pub Date"
+                if (labelLower === 'date' || 
+                    labelLower.includes('pub date') ||
+                    labelLower.includes('publication date')) {
+                    if (!metadata.date || labelLower === 'date') { // Prefer exact "Date"
                         metadata.date = value;
                     }
                 }
                 
-                // Creator variations
-                if (labelLower.includes('creator') || 
-                    labelLower.includes('author') || 
+                // Creator variations - Rumsey uses "Author", Stanford uses "Contributor" or "Creator"
+                if (labelLower === 'author' ||
+                    labelLower === 'authors' ||
+                    labelLower === 'creator' || 
                     labelLower.includes('contributor')) {
-                    if (!metadata.creator) { // Take first one found
+                    if (!metadata.creator || labelLower === 'author') { // Prefer "Author"
                         metadata.creator = value;
                     }
                 }
@@ -319,7 +322,30 @@ function extractMetadata(manifest) {
         metadata.institution = extractLabel(manifest.attribution);
     }
     
-    // If no viewUrl found, try to construct from manifest URL
+    // Rumsey: check canvas metadata for additional info if main metadata didn't have it
+    if (!metadata.date || !metadata.creator) {
+        const canvas = getFirstCanvas(manifest);
+        if (canvas && canvas.metadata && Array.isArray(canvas.metadata)) {
+            canvas.metadata.forEach(item => {
+                const label = extractLabel(item.label);
+                const value = extractLabel(item.value);
+                
+                if (label && value) {
+                    const labelLower = label.toLowerCase();
+                    
+                    if (!metadata.date && labelLower === 'date') {
+                        metadata.date = value;
+                    }
+                    
+                    if (!metadata.creator && labelLower === 'author') {
+                        metadata.creator = value;
+                    }
+                }
+            });
+        }
+    }
+    
+    // If no viewUrl found, try to construct from manifest URL or related field
     if (!metadata.viewUrl && manifest['@id']) {
         // Stanford pattern: manifest URL to PURL
         // https://purl.stanford.edu/xx123xx1234/iiif/manifest -> https://purl.stanford.edu/xx123xx1234
@@ -331,7 +357,6 @@ function extractMetadata(manifest) {
     
     return metadata;
 }
-
 /**
  * Extract text from IIIF label (handles different formats)
  * Enhanced to clean HTML tags
