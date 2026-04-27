@@ -171,7 +171,7 @@ function processManifest(manifest, manifestUrl) {
             date: metadata.date || 'Date unknown',
             creator: metadata.creator || 'Unknown',
             institution: metadata.institution || 'Unknown',
-            sourceUrl: manifestUrl,
+            sourceUrl: metadata.viewUrl || manifestUrl, // Use viewUrl, fallback to manifest
             
             // Raw data
             raw: manifest
@@ -225,7 +225,8 @@ function extractImageService(canvas) {
         const resource = canvas.images[0].resource;
         if (resource) {
             if (resource.service) {
-                return resource.service['@id'] || resource.service.id;
+                const service = Array.isArray(resource.service) ? resource.service[0] : resource.service;
+                return service['@id'] || service.id;
             }
             return resource['@id'] || resource.id;
         }
@@ -245,17 +246,27 @@ function extractImageService(canvas) {
 
 /**
  * Extract metadata from manifest
+ * Enhanced to handle Stanford and Rumsey formats better
  */
 function extractMetadata(manifest) {
     const metadata = {
         title: null,
         date: null,
         creator: null,
-        institution: null
+        institution: null,
+        viewUrl: null
     };
     
     // Get label (title)
     metadata.title = extractLabel(manifest.label);
+    
+    // Extract viewing URL (not manifest URL)
+    // Stanford uses 'related', Rumsey uses 'related' or has it in metadata
+    if (manifest.related) {
+        metadata.viewUrl = typeof manifest.related === 'string' ? 
+            manifest.related : 
+            manifest.related['@id'] || manifest.related.id;
+    }
     
     // Parse metadata array
     if (manifest.metadata && Array.isArray(manifest.metadata)) {
@@ -266,14 +277,38 @@ function extractMetadata(manifest) {
             if (label && value) {
                 const labelLower = label.toLowerCase();
                 
+                // Date variations
                 if (labelLower.includes('date') || labelLower.includes('pub date')) {
-                    metadata.date = value;
+                    if (!metadata.date) { // Take first date found
+                        metadata.date = value;
+                    }
                 }
-                if (labelLower.includes('creator') || labelLower.includes('author')) {
-                    metadata.creator = value;
+                
+                // Creator variations
+                if (labelLower.includes('creator') || 
+                    labelLower.includes('author') || 
+                    labelLower.includes('contributor')) {
+                    if (!metadata.creator) { // Take first one found
+                        metadata.creator = value;
+                    }
                 }
-                if (labelLower.includes('institution') || labelLower.includes('repository')) {
-                    metadata.institution = value;
+                
+                // Institution variations
+                if (labelLower.includes('institution') || 
+                    labelLower.includes('repository') || 
+                    labelLower.includes('relation')) {
+                    if (!metadata.institution) {
+                        metadata.institution = value;
+                    }
+                }
+                
+                // View URL might be in metadata as "Available Online"
+                if (labelLower.includes('available online')) {
+                    // Extract URL from HTML if needed
+                    const urlMatch = value.match(/https?:\/\/[^\s<'"]+/);
+                    if (urlMatch) {
+                        metadata.viewUrl = urlMatch[0];
+                    }
                 }
             }
         });
@@ -284,49 +319,70 @@ function extractMetadata(manifest) {
         metadata.institution = extractLabel(manifest.attribution);
     }
     
+    // If no viewUrl found, try to construct from manifest URL
+    if (!metadata.viewUrl && manifest['@id']) {
+        // Stanford pattern: manifest URL to PURL
+        // https://purl.stanford.edu/xx123xx1234/iiif/manifest -> https://purl.stanford.edu/xx123xx1234
+        const stanfordMatch = manifest['@id'].match(/(https:\/\/purl\.stanford\.edu\/[a-z0-9]+)/);
+        if (stanfordMatch) {
+            metadata.viewUrl = stanfordMatch[1];
+        }
+    }
+    
     return metadata;
 }
 
 /**
  * Extract text from IIIF label (handles different formats)
+ * Enhanced to clean HTML tags
  */
 function extractLabel(label) {
     if (!label) return null;
     
+    let text = null;
+    
     // String
     if (typeof label === 'string') {
-        return label;
+        text = label;
     }
-    
     // Object with language keys
-    if (typeof label === 'object') {
+    else if (typeof label === 'object') {
         // Try 'none' key first (common in IIIF)
         if (label.none) {
-            return Array.isArray(label.none) ? label.none[0] : label.none;
+            text = Array.isArray(label.none) ? label.none[0] : label.none;
         }
-        
         // Try 'en' or '@none'
-        if (label.en) {
-            return Array.isArray(label.en) ? label.en[0] : label.en;
+        else if (label.en) {
+            text = Array.isArray(label.en) ? label.en[0] : label.en;
         }
-        if (label['@none']) {
-            return Array.isArray(label['@none']) ? label['@none'][0] : label['@none'];
+        else if (label['@none']) {
+            text = Array.isArray(label['@none']) ? label['@none'][0] : label['@none'];
         }
-        
         // Try first available key
-        const keys = Object.keys(label);
-        if (keys.length > 0) {
-            const value = label[keys[0]];
-            return Array.isArray(value) ? value[0] : value;
+        else {
+            const keys = Object.keys(label);
+            if (keys.length > 0) {
+                const value = label[keys[0]];
+                text = Array.isArray(value) ? value[0] : value;
+            }
         }
     }
-    
     // Array
-    if (Array.isArray(label)) {
-        return label[0];
+    else if (Array.isArray(label)) {
+        text = label[0];
     }
     
-    return null;
+    // Clean HTML tags if present
+    if (text && typeof text === 'string') {
+        // Remove HTML tags
+        text = text.replace(/<[^>]*>/g, '');
+        // Decode HTML entities
+        const textarea = document.createElement('textarea');
+        textarea.innerHTML = text;
+        text = textarea.value;
+    }
+    
+    return text;
 }
 
 // ========================================
@@ -349,9 +405,18 @@ function shuffleArray(array) {
  * Get gallery info
  */
 function getGalleryInfo() {
+    const label = GALLERY_CONFIG.currentGallery?.label;
     return {
-        label: GALLERY_CONFIG.currentGallery?.label || 'Unknown Gallery',
+        label: extractLabel(label) || 'Unknown Gallery',
         total: GALLERY_CONFIG.manifests?.length || 0,
         current: GALLERY_CONFIG.currentIndex
     };
+}
+
+/**
+ * Clear cache (useful for debugging or refresh)
+ */
+function clearManifestCache() {
+    GALLERY_CONFIG.manifestCache.clear();
+    console.log('Manifest cache cleared');
 }
