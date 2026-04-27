@@ -108,6 +108,12 @@ function updateGalleryDisplay() {
         DOM.footerGalleryName.textContent = label;
         DOM.totalMaps.textContent = AppState.galleryInfo.total;
         DOM.currentIndex.textContent = AppState.galleryInfo.current + 1;
+        
+        // Set link to open gallery in viewer
+        // Construct viewer URL with gallery parameter
+        const galleryUrl = getGalleryUrlFromParams(); // from gallery.js
+        const viewerUrl = `https://davidrumseymapcenter.github.io/set-builder/viewer.html?gallery=${encodeURIComponent(galleryUrl)}`;
+        DOM.galleryNameLink.href = viewerUrl;
     }
 }
 
